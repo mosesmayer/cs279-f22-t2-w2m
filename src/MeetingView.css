@@ -1,0 +1,31 @@
+:root {
+    user-select: none;
+}
+
+.meeting-grid {
+    display: grid;
+    /* grid-template-columns: 200px 200px 200px; */
+    grid-template-columns: 1fr;
+    margin: 50px auto;
+}
+
+.meeting-row {
+    display: grid;
+}
+
+.meeting-time-cell {
+    border: 1px solid black;
+    /* height: 50px; */
+}
+
+.meeting-time-cell-selected {
+    background: rgb(51, 153, 0);
+}
+
+.meeting-time-cell-unselected {
+    background: rgb(255, 222, 222);
+}
+
+.meeting-time-cell-unavailable {
+    background: #505050;
+}
