@@ -3,19 +3,28 @@
 }
 
 .meeting-grid {
-    display: grid;
+    /* display: grid; */
     /* grid-template-columns: 200px 200px 200px; */
-    grid-template-columns: 1fr;
+    /* grid-template-columns: 1fr; */
+
+    display: inline;
     margin: 50px auto;
+    padding: 0px 20px;
 }
 
 .meeting-row {
-    display: grid;
+    /* display: grid; */
+    display: block;
+    font-size: 0px;
+    vertical-align: top;
 }
 
 .meeting-time-cell {
+    display: inline-block;
+    vertical-align: top;
     border: 1px solid black;
-    /* height: 50px; */
+    height: 9px;
+    width: 44px;
 }
 
 .meeting-time-cell-selected {

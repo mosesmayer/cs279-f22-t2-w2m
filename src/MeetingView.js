@@ -19,23 +19,23 @@ class TimeCell extends React.Component {
             row: props.row,
             column: props.column,
             timestamp: props.timestamp,
-            // selected: props.status,
+            // getSelected: props.getCellSelectedState,
+            selected: props.status,
         }
-        this.getSelected = props.getCellSelectedState;
+        // this.getSelected = props.getCellSelectedState;
         this.updateCurrentSelectionState = props.updateCurrentSelectionState; // pass in state update callback into cell, state in parent
         this.updateCurrentMousePos = props.updateCurrentMousePos;
         this.checkCellInside = this.props.checkCellInside;
     }
-    // componentWillReceiveProps(nextProps) {
-    //     this.setState({ selected: nextProps.status });
-    // }
+
     selectFromHere = () => {
         // Take state of selected cell as selection state
         console.log("Select From Here", this.state.row, this.state.column,
-            // this.state.selected);
-            this.getSelected(this.state.row, this.state.column));
-        // this.updateCurrentSelectionState(this.state.selected);
-        this.updateCurrentSelectionState(this.getSelected(this.state.row, this.state.column));
+            this.state.selected);
+        // this.state.getSelected(this.state.row, this.state.column));
+        this.updateCurrentSelectionState(this.state.selected);
+        // this.updateCurrentSelectionState(this.getSelected(this.state.row, this.state.column));
+        // this.updateCurrentSelectionState(this.state.getSelected(this.state.row, this.state.column));
     }
 
     selectToHere = () => {
@@ -44,12 +44,25 @@ class TimeCell extends React.Component {
         this.updateCurrentMousePos(this.state.row, this.state.column);
     }
 
+    componentDidUpdate(prevProps) {
+        if (this.props.status !== prevProps.status) {
+            console.log("Component did update", this.state.row, this.state.column)
+            this.setState({ ...this.state, selected: this.props.status });
+            this.forceUpdate();
+        }
+        // console.log("Component did update", this.state.row, this.state.column)
+        // this.getSelected = this.props.getCellSelectedState;
+        // this.setState({ ...this.state, getSelected: this.props.getCellSelectedState });
+    }
+
     render() {
         const [ins, sel] = this.checkCellInside(this.state.row, this.state.column)
-        const cur_sel = this.getSelected(this.state.row, this.state.col);
-        // const cur_sel = this.state.selected;
+        // const cur_sel = this.state.getSelected(this.state.row, this.state.col);
+        // const cur_sel = this.getSelected(this.state.row, this.state.col);
+        const cur_sel = this.state.selected;
+        console.log("Render: ", { ...this.state, ins: ins, sel: sel, cur_sel: cur_sel })
         const classString = "meeting-time-cell " + (cur_sel === GRID_NO_SELECTION ? "meeting-time-cell-unavailable" : (
-            ins ? (
+            (this.props.activeSelection !== GRID_NO_SELECTION && ins) ? (
                 sel === GRID_CELL_SELECTED ? "meeting-time-cell-selected" : "meeting-time-cell-unselected"
             ) : (
                 cur_sel === GRID_CELL_SELECTED ? "meeting-time-cell-selected" : "meeting-time-cell-unselected"
@@ -58,10 +71,9 @@ class TimeCell extends React.Component {
         return (<div className={classString}
             onMouseDown={this.selectFromHere}
             onMouseEnter={this.selectToHere}
-        // onMouseUp={() => { console.log(this.state.row, this.state.column) }}
         >
-            <p>Time: {this.state.timestamp + this.state.row + this.state.column}</p>
-            <p>ClassName: {classString}</p>
+            {/* <p>Time: {this.state.timestamp + this.state.row + this.state.column}</p>
+            <p>ClassName: {classString}</p> */}
         </div>)
     }
 }
@@ -77,16 +89,26 @@ class TimetableGrid extends React.Component { // contains TimeCells
             selectionMode: GRID_NO_SELECTION,
             row: 0,
             column: 0,
-            start_row: 0, end_row: 0,
-            start_col: 0, end_col: 0,
+            start_row: -1,
+            start_col: -1,
             current_status: Array(this.MAX_ROWS * this.MAX_COLS).fill(GRID_CELL_UNSELECTED),
         }
     }
 
+    /**
+     * Given row and column of child, finds status stored in parent
+     * @param {int} row 
+     * @param {int} col 
+     * @returns cell status
+     */
     getCellSelectedState = (row, col) => {
         return this.state.current_status[row * this.MAX_COLS + col];
     }
 
+    /**
+     * On clicking down on a cell to begin selection, update that we are now selecting a range
+     * @param {Object} cell_state state of cell that is first selected
+     */
     updateCurrentSelectionState = (cell_state) => {
         this.setState({
             ...this.state,
@@ -96,39 +118,51 @@ class TimetableGrid extends React.Component { // contains TimeCells
         });
     }
 
+    /**
+     * On entering a cell, updates the current position of the mouse
+     * @param {int} row cell row
+     * @param {int} col cell column
+     */
     updateCurrentMousePos = (row, col) => {
         this.setState({
             ...this.state, row: row, column: col
         })
     }
-    // handle onMouseUp here (do the updating stuff)
 
+    /**
+     * UpdateRange: given the current selection, updates the status of selected cells
+     *
+     * 
+     * handle onMouseUp here (do the updating stuff)
+     */
     updateRange = () => {
         if (this.state.selectionMode === GRID_NO_SELECTION) return;
         let new_status = this.state.current_status;
         for (var i = 0; i < this.MAX_ROWS; i++) {
             for (var j = 0; j < this.MAX_COLS; j++) {
-                if (this.insideSelection(i, j)[0]
-                    // if (Math.min(this.state.start_row, this.state.row) <= i && i <= Math.max(this.state.start_row, this.state.row)
-                    //     && Math.min(this.state.start_col, this.state.col) <= j && j <= Math.max(this.state.start_col, this.state.col)
-                ) {
+                if (this.insideSelection(i, j)[0]) {
                     console.log("Update", i, j)
                     new_status[i * this.MAX_COLS + j] = this.state.selectionMode;
                 }
             }
         }
-        console.log("SELECTION MODE", this.state.selectionMode, "NEW STATUS: ", new_status)
+        // console.log("SELECTION MODE", this.state.selectionMode, "NEW STATUS: ", new_status)
         this.setState({
             ...this.state,
-            end_row: this.state.row,
-            end_col: this.state.column,
             selectionMode: GRID_NO_SELECTION,
             current_status: new_status,
+            start_row: -1,
+            start_col: -1,
         })
-        // console.log(this.state.start_row, this.state.start_col, this.state.end_row, this.state.end_col);
-        console.log(this.state); //so state gets updated. why cells no update????
+        console.log(this.state);
     }
 
+    /**
+     * Returns array containing whether current cell is inside selection range
+     * @param {int} row 
+     * @param {int} col 
+     * @returns {[boolean, int]} array, elt1: inside, elt2: current selection state
+     */
     insideSelection = (row, col) => {
         const mnrow = Math.min(this.state.start_row, this.state.row);
         const mxrow = Math.max(this.state.start_row, this.state.row);
@@ -143,35 +177,26 @@ class TimetableGrid extends React.Component { // contains TimeCells
         for (var i = 0; i < this.MAX_ROWS; i++) {
             let cur_row = [];
             for (var j = 0; j < this.MAX_COLS; j++) {
+                let idx = i * this.MAX_COLS + j;
                 cur_row.push(
-                    <TimeCell key={i * this.MAX_COLS + j} row={i} column={j} timestamp={Date.now()}
-                        // status={elt}
-                        getCellSelectedState={this.getCellSelectedState}
+                    <TimeCell key={idx} row={i} column={j} timestamp={Date.now()}
+                        status={this.state.current_status[idx]}
                         updateCurrentSelectionState={this.updateCurrentSelectionState}
                         updateCurrentMousePos={this.updateCurrentMousePos}
                         checkCellInside={this.insideSelection}
+                        activeSelection={this.state.selectionMode}
                     />
                 )
             }
             elements.push(
                 <div className={"meeting-row"} key={i} style={{
-                    gridTemplateColumns: `repeat(${this.MAX_COLS}, 1fr)`
+                    // gridTemplateColumns: `repeat(${this.MAX_COLS}, 1fr)`
                 }}>
                     {cur_row}
                 </div>
             )
         }
         return elements;
-        // return this.state.current_status.map((elt, idx) => {
-        //     return (
-        //         <TimeCell key={idx} row={(idx - idx % this.MAX_COLS) / this.MAX_COLS} column={idx % this.MAX_COLS} timestamp={Date.now()}
-        //             // status={elt}
-        //             getCellSelectedState={this.getCellSelectedState}
-        //             updateCurrentSelectionState={this.updateCurrentSelectionState}
-        //             updateCurrentMousePos={this.updateCurrentMousePos}
-        //             checkCellInside={this.insideSelection}
-        //         />)
-        // })
     }
 
     render() {
@@ -183,7 +208,7 @@ class TimetableGrid extends React.Component { // contains TimeCells
             }
             <p>{this.state.selectionMode}</p>
             <p>Row: {this.state.row}, Col: {this.state.column}</p>
-            <p>Last selection: ({this.state.start_row}, {this.state.start_col}) to ({this.state.end_row}, {this.state.end_col})</p>
+            <p>Last selection: ({this.state.start_row}, {this.state.start_col}) to ({this.state.row}, {this.state.column})</p>
         </div>)
     }
 }
