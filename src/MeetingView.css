@@ -7,7 +7,7 @@
     /* grid-template-columns: 200px 200px 200px; */
     /* grid-template-columns: 1fr; */
 
-    display: inline;
+    display: inline-block;
     margin: 50px auto;
     padding: 0px 20px;
 }
@@ -37,4 +37,18 @@
 
 .meeting-time-cell-unavailable {
     background: #505050;
+}
+
+.AttendeeHalfPanel {
+    display: inline-block;
+    white-space: nowrap;
+    text-align: center;
+    font-size: 18px;
+    margin: 50px auto;
+    padding: 0px 20px;
+}
+
+.GridHeader {
+    display: inline-block;
+    text-align: center;
 }
