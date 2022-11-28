@@ -122,17 +122,30 @@ class TimetableGrid extends React.Component { // contains TimeCells
             return new_status;
         }
 
-        // console.log("Updating begins: new status: ", printGrid(), "selection mode: ", this.state.selectionMode)
+        console.log("Updating begins: new status: ", printGrid(), "selection mode: ", this.state.selectionMode)
+        // for (var i = 0; i < this.MAX_ROWS; i++) {
+        //     for (var j = 0; j < this.MAX_COLS; j++) {
+        //         if (this.insideSelection(i, j)[0]) {
+        //             // console.log("Update", i, j)
+        //             // new_status[i * this.MAX_COLS + j] = this.state.selectionMode;
+        //             this.props.updCellValue(i, j, this.state.selectionMode);
+        //             this.forceUpdate();
+        //         }
+        //     }
+        // }
+        let new_grid = JSON.parse(JSON.stringify(this.props.getGridValue())); // deep copy 2d array
+        // console.log("Ori new grid:", new_grid);
         for (var i = 0; i < this.MAX_ROWS; i++) {
             for (var j = 0; j < this.MAX_COLS; j++) {
                 if (this.insideSelection(i, j)[0]) {
-                    // console.log("Update", i, j)
-                    // new_status[i * this.MAX_COLS + j] = this.state.selectionMode;
-                    this.props.updCellValue(i, j, this.state.selectionMode);
-                    this.forceUpdate();
+                    new_grid[i][j] = this.state.selectionMode;
                 }
             }
         }
+        // console.log("Candidate new grid:", new_grid);
+        this.props.updGridValue(new_grid);
+        // console.log("Updating end:", printGrid());
+
         // console.log("SELECTION MODE", this.state.selectionMode, "NEW STATUS: ", new_status)
         this.setState({
             ...this.state,
@@ -143,6 +156,7 @@ class TimetableGrid extends React.Component { // contains TimeCells
         })
         console.log(this.state);
         this.forceUpdate();
+        console.log("Styles:", document.documentElement.style);
     }
 
     /**
@@ -168,7 +182,6 @@ class TimetableGrid extends React.Component { // contains TimeCells
                 let idx = i * this.MAX_COLS + j;
                 cur_row.push(
                     <TimeCell key={idx} row={i} column={j} timestamp={Date.now()}
-                        // status={this.state.current_status[idx]}
                         status={this.props.getCellValue(i, j)}
                         updateCurrentSelectionState={this.updateCurrentSelectionState}
                         updateCurrentMousePos={this.updateCurrentMousePos}
@@ -179,7 +192,6 @@ class TimetableGrid extends React.Component { // contains TimeCells
             }
             elements.push(
                 <div className={"meeting-row"} key={i} style={{
-                    // gridTemplateColumns: `repeat(${this.MAX_COLS}, 1fr)`
                 }}>
                     {cur_row}
                 </div>

@@ -61,20 +61,12 @@ class AggregateCell extends React.Component {
     }
 
     render() {
-        // const [ins, sel] = this.checkCellInside(this.state.row, this.state.column)
-        // const cur_sel = this.state.selected;
-        // // console.log("Render: ", { ...this.state, ins: ins, sel: sel, cur_sel: cur_sel })
-        // const classString = "meeting-time-cell " + (cur_sel === GRID_NO_SELECTION ? "meeting-time-cell-unavailable" : (
-        //     (this.props.activeSelection !== GRID_NO_SELECTION && ins) ? (
-        //         sel === GRID_CELL_SELECTED ? "meeting-time-cell-selected" : "meeting-time-cell-unselected"
-        //     ) : (
-        //         cur_sel === GRID_CELL_SELECTED ? "meeting-time-cell-selected" : "meeting-time-cell-unselected"
-        //     )
-        // ));
-        console.log(this.props.style, this.props.row, this.props.column, this.props.status)
-        return (<div className="meeting-time-cell" style={
-            { backgroundColor: this.state.cellColor }
-        }
+        // console.log(this.props.style, this.props.row, this.props.column, this.props.status)
+        // const classString = "meeting-time-cell ""
+        return (<div className="meeting-time-cell"
+            style={
+                { backgroundColor: document.documentElement.style.getPropertyValue(`--grid-green-${this.props.status}`) }
+            }
         // onMouseDown={this.selectFromHere}
         // onMouseEnter={this.selectToHere}
         >

@@ -15,15 +15,17 @@ import { AggregateCell } from './AggregateCell.js'
  * @returns div containing grid header
  */
 function GridHeader(props) {
-    const [totalAttendees, setTotalAttendees] = useState(props.totalAttendees);
-    const [numAttendees, setNumAttendees] = useState(props.numAttendees);
-    useEffect(() => {
-        setNumAttendees(props.numAttendees);
-    }, [props.numAttendees]);
-    useEffect(() => {
-        setTotalAttendees(props.totalAttendees);
-    }, [props.totalAttendees]);
+    // const [totalAttendees, setTotalAttendees] = useState(props.totalAttendees);
+    // const [numAttendees, setNumAttendees] = useState(props.numAttendees);
+    // useEffect(() => {
+    //     setNumAttendees(props.numAttendees);
+    // }, [props.numAttendees]);
+    // useEffect(() => {
+    //     setTotalAttendees(props.totalAttendees);
+    // }, [props.totalAttendees]);
 
+    let totalAttendees = props.getTotalAttendees();
+    let numAttendees = props.getNumAttendees();
     function GradientCells(props) {
         // rgb(51, 153, 0)
         // ECF6E8, DAECD1, C7E3B9, B5DAA2, A2D18B, 90C774, 7DBE5D, 6BB546, 58AC2E, 46A217, 339900
@@ -31,12 +33,17 @@ function GridHeader(props) {
         // 255, 246, 236, 
         const arr = Array(totalAttendees + 1).fill(0);
         const UBND = 0xFFFFFF, LBND = 0x339900;
-        for (var i = 0; i <= totalAttendees; i++) {
+        for (let i = 0; i <= totalAttendees; i++) {
             const redVal = (((UBND >> 16) - Math.round(((UBND >> 16) - (LBND >> 16)) * i / totalAttendees)) & 0xFF) << 16;
             const greenVal = ((((UBND & 0xFF00) >> 8) - Math.round((((UBND & 0xFF00) >> 8) - ((LBND & 0xFF00) >> 8)) * i / totalAttendees)) & 0xFF) << 8;
             const blueVal = (((UBND & 0xFF) - Math.round(((UBND & 0xFF) - (LBND & 0xFF)) * i / totalAttendees)) & 0xFF);
             // console.log(redVal.toString(16), greenVal.toString(16), blueVal.toString(16))
             arr[i] = redVal | greenVal | blueVal;
+        }
+        for (let i = 0; i <= totalAttendees; i++) {
+            let class_str = `--grid-green-${i}`;
+            // console.log(class_str, arr[i].toString(16));
+            document.documentElement.style.setProperty(class_str, `#${arr[i].toString(16)}`);
         }
         // console.log(arr.map(x => x.toString(16)));
         return arr.map((x, idx) => {
@@ -61,7 +68,7 @@ function GridHeader(props) {
                             </tbody>
                         </table>
                     </div>
-                    {totalAttendees}/{totalAttendees} Available
+                    {numAttendees}/{totalAttendees} Available
                 </div>
                 Mouseover the Calendar to see who is available
             </div>
@@ -78,7 +85,8 @@ class AggregateGrid extends React.Component {
         this.MAX_COLS = props.maxCols;
 
         this.state = {
-            totalAttendees: props.totalAttendees,
+            // totalAttendees: props.totalAttendees,
+            totalAttendees: props.getAttendeeCounts().total_attendees,
             row: 0,
             column: 0,
             current_status: props.current_status,
@@ -110,9 +118,9 @@ class AggregateGrid extends React.Component {
 
     constructTimeCells = () => {
         // console.log("Reconstruct", Date.now());
-        console.log(this.state.cellbgcolors);
+        // console.log(this.state.cellbgcolors);
         if (this.state.cellbgcolors === -1) return;
-        console.log("Build cells")
+        // console.log("Build cells")
         let elements = [];
         for (var i = 0; i < this.MAX_ROWS; i++) {
             let cur_row = [];
@@ -133,7 +141,6 @@ class AggregateGrid extends React.Component {
             }
             elements.push(
                 <div className={"meeting-row"} key={i} style={{
-                    // gridTemplateColumns: `repeat(${this.MAX_COLS}, 1fr)`
                 }}>
                     {cur_row}
                 </div>
@@ -146,9 +153,12 @@ class AggregateGrid extends React.Component {
         return (<div className={"AttendeeHalfPanel"}
         >
             {
-                <GridHeader numAttendees={this.props.numAttendees} totalAttendees={this.props.totalAttendees} />
+                // <GridHeader numAttendees={this.props.numAttendees} totalAttendees={this.props.totalAttendees} />
+                <GridHeader getNumAttendees={() => { return this.props.getAttendeeCounts().num_attendees }}
+                    getTotalAttendees={() => { return this.props.getAttendeeCounts().total_attendees }} />
             }
             {this.constructTimeCells()}
+            <p>{this.state.totalAttendees}</p>
         </div>)
     }
 }
