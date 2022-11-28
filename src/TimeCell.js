@@ -65,6 +65,7 @@ class TimeCell extends React.Component {
         return (<div className={classString}
             onMouseDown={this.selectFromHere}
             onMouseEnter={this.selectToHere}
+            style={{ ...this.props.borderstyle }}
         >
             {/* <p>Time: {this.state.timestamp + this.state.row + this.state.column}</p>
             <p>ClassName: {classString}</p> */}

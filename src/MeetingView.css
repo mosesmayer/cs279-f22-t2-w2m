@@ -22,7 +22,7 @@
 .meeting-time-cell {
     display: inline-block;
     vertical-align: top;
-    border: 1px solid black;
+    /* border: 1px solid black; */
     height: 9px;
     width: 44px;
 }

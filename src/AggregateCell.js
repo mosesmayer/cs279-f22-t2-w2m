@@ -35,15 +35,7 @@ class AggregateCell extends React.Component {
         }
     }
 
-    selectFromHere = () => {
-        // Take state of selected cell as selection state
-        // console.log("Select From Here", this.state.row, this.state.column,
-        //     this.state.selected);
-        this.updateCurrentSelectionState(this.state.selected);
-
-    }
-
-    selectToHere = () => {
+    mouseOverThisCell = () => {
         // update selection
         // console.log("Select To Here", this.state.row, this.state.column);
         this.updateCurrentMousePos(this.state.row, this.state.column);
@@ -65,10 +57,13 @@ class AggregateCell extends React.Component {
         // const classString = "meeting-time-cell ""
         return (<div className="meeting-time-cell"
             style={
-                { backgroundColor: document.documentElement.style.getPropertyValue(`--grid-green-${this.props.status}`) }
+                {
+                    ...this.props.borderstyle,
+                    backgroundColor: document.documentElement.style.getPropertyValue(`--grid-green-${this.props.status}`)
+                }
             }
         // onMouseDown={this.selectFromHere}
-        // onMouseEnter={this.selectToHere}
+        // onMouseEnter={this.mouseOverThisCell}
         >
             {/* <p>Time: {this.state.timestamp + this.state.row + this.state.column}</p>
             <p>ClassName: {classString}</p> */}

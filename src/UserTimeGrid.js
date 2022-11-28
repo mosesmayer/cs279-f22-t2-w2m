@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./MeetingView.css"
 import TimeCell from './TimeCell';
-import { GRID_NO_SELECTION, GRID_CELL_UNSELECTED, GRID_CELL_SELECTED } from './constants.js'
+import { GRID_NO_SELECTION, GRID_CELL_UNSELECTED, GRID_CELL_SELECTED, START_TIME } from './constants.js'
 
 /**
  * GridHeader functional component
@@ -178,6 +178,16 @@ class TimetableGrid extends React.Component { // contains TimeCells
         let elements = [];
         for (var i = 0; i < this.MAX_ROWS; i++) {
             let cur_row = [];
+            cur_row.push(<div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + i}
+                style={{
+                    textAlign: 'right',
+                    fontSize: '10px',
+                    paddingRight: '4px',
+                    // paddingTop: '4px'
+                }}
+            >
+                {i % 4 === 0 ? `${START_TIME[0] + i / 4}:00` : ""}
+            </div>)
             for (var j = 0; j < this.MAX_COLS; j++) {
                 let idx = i * this.MAX_COLS + j;
                 cur_row.push(
@@ -187,6 +197,12 @@ class TimetableGrid extends React.Component { // contains TimeCells
                         updateCurrentMousePos={this.updateCurrentMousePos}
                         checkCellInside={this.insideSelection}
                         activeSelection={this.state.selectionMode}
+                        borderstyle={
+                            {
+                                borderStyle: `${["solid", "none", "dotted", "none"][i % 4]} ${j === this.MAX_COLS - 1 ? "solid" : "none"} ${i === this.MAX_ROWS - 1 ? "solid" : "none"} solid`,
+                                borderWidth: '1px'
+                            }
+                        }
                     />
                 )
             }
@@ -203,14 +219,15 @@ class TimetableGrid extends React.Component { // contains TimeCells
     render() {
         return (<div className={"meeting-grid"}
             onMouseUp={this.updateRange}
+            onMouseLeave={this.updateRange}
         >
             <GridHeader username="Tester" />
             {
                 this.constructTimeCells()
             }
-            <p>{this.state.selectionMode}</p>
+            {/* <p>{this.state.selectionMode}</p>
             <p>Row: {this.state.row}, Col: {this.state.column}</p>
-            <p>Last selection: ({this.state.start_row}, {this.state.start_col}) to ({this.state.row}, {this.state.column})</p>
+            <p>Last selection: ({this.state.start_row}, {this.state.start_col}) to ({this.state.row}, {this.state.column})</p> */}
         </div>)
     }
 }

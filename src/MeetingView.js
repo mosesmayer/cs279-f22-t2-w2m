@@ -3,7 +3,7 @@ import { TimetableGrid } from './UserTimeGrid';
 import AggregateGrid from './AggregateGrid';
 import { GRID_NO_SELECTION, GRID_CELL_UNSELECTED, GRID_CELL_SELECTED } from './constants.js'
 import { maxRows, maxCols } from './constants.js'
-import { starting_num_attendees, starting_grid } from './constants.js';
+import { starting_num_attendees, starting_grid, avail_at_time, unavail_at_time } from './constants.js';
 import "./MeetingView.css"
 
 /**
@@ -31,6 +31,8 @@ function MeetingView() {
             Array(maxCols).fill(GRID_CELL_UNSELECTED)
         )
     );
+    const [avail_status, setAvailStatus] = useState(avail_at_time);
+    const [unavail_status, setUnvailStatus] = useState(unavail_at_time);
     console.log("Initial state: ", new_attendee_status)
     // console.log("Initial state: ", new_attendee_status, setNewAttendeeStatus)
 
@@ -48,7 +50,6 @@ function MeetingView() {
         return new_attendee_status;
     }
     const updateNewAttendeeGrid = (arr) => {
-        console.log("PARENT UPDATING: ", arr);
         setNewAttendeeStatus(arr);
     }
 
@@ -63,10 +64,24 @@ function MeetingView() {
         return base_attendee_status.current[row][column] + new_attendee_status[row][column];
     }
     const getAttendeeCounts = () => {
-        const num_attendees = Math.max(...(base_attendee_status.current.map(x => Math.max(...x))));
+        let num_attendees = 0;
+        for (let i = 0; i < maxRows; i++) {
+            for (let j = 0; j < maxCols; j++) {
+                num_attendees = Math.max(num_attendees, base_attendee_status.current[i][j] + new_attendee_status[i][j]);
+            }
+        }
+        // const num_attendees = Math.max(...(base_attendee_status.current.map(x => Math.max(...x))));
         // const total_attendees = base_attendee_count.current + Math.max(...(new_attendee_status.current.map(x => Math.max(...x))));
         const total_attendees = base_attendee_count.current + Math.max(...(new_attendee_status.map(x => Math.max(...x))));
         return { num_attendees, total_attendees };
+    }
+
+    const getAllAttendees = () => {
+        return { avail_status, unavail_status };
+    }
+
+    const getAttendeesAtTime = (row, col) => {
+        return { avail: avail_status[row][col], unavail: unavail_status[row][col] };
     }
 
     return (<div style={{ display: "block" }}>
@@ -81,6 +96,8 @@ function MeetingView() {
             // totalAttendees={base_attendee_count.current + Math.max(...(new_attendee_status.current.map(x => Math.max(...x))))}
             getAttendeeCounts={getAttendeeCounts}
             getCellValue={getAggCellState}
+            getAllAttendees={getAllAttendees}
+            getAttendeesAtTime={getAttendeesAtTime}
         />
     </div>);
 }
