@@ -38,7 +38,7 @@ class AggregateCell extends React.Component {
     mouseOverThisCell = () => {
         // update selection
         // console.log("Select To Here", this.state.row, this.state.column);
-        this.updateCurrentMousePos(this.state.row, this.state.column);
+        this.props.updateCurrentMousePos(this.state.row, this.state.column);
     }
 
     componentDidUpdate(prevProps) {
@@ -62,8 +62,8 @@ class AggregateCell extends React.Component {
                     backgroundColor: document.documentElement.style.getPropertyValue(`--grid-green-${this.props.status}`)
                 }
             }
-        // onMouseDown={this.selectFromHere}
-        // onMouseEnter={this.mouseOverThisCell}
+            // onMouseDown={this.selectFromHere}
+            onMouseEnter={this.mouseOverThisCell}
         >
             {/* <p>Time: {this.state.timestamp + this.state.row + this.state.column}</p>
             <p>ClassName: {classString}</p> */}

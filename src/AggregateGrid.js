@@ -91,8 +91,8 @@ class AggregateGrid extends React.Component {
         this.state = {
             // totalAttendees: props.totalAttendees,
             // totalAttendees: props.getAttendeeCounts().total_attendees,
-            // row: 0,
-            // column: 0,
+            row: -1,
+            column: -1,
             // current_status: props.current_status,
             cellbgcolors: -1,
         }
@@ -125,6 +125,10 @@ class AggregateGrid extends React.Component {
         // }
     }
 
+    updateCurrentMousePos = (row, column) => {
+        this.setState({ ...this.state, row, column });
+    }
+
     constructTimeCells = () => {
         // console.log("Reconstruct", Date.now());
         // console.log(this.state.cellbgcolors);
@@ -133,7 +137,7 @@ class AggregateGrid extends React.Component {
         let elements = [];
         for (var i = 0; i < this.MAX_ROWS; i++) {
             let cur_row = [];
-            cur_row.push(<div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + i}
+            cur_row.push(<div className='meeting-time-cell' key={2 * this.MAX_ROWS * this.MAX_COLS + i}
                 style={{
                     textAlign: 'right',
                     fontSize: '10px',
@@ -152,7 +156,7 @@ class AggregateGrid extends React.Component {
                         status={curval}
                         // style={{ backgroundColor: cellcolor }}
                         // updateCurrentSelectionState={this.updateCurrentSelectionState}
-                        // updateCurrentMousePos={this.updateCurrentMousePos}
+                        updateCurrentMousePos={this.updateCurrentMousePos}
                         // checkCellInside={this.insideSelection}
                         // activeSelection={this.state.selectionMode}
                         borderstyle={
@@ -171,19 +175,100 @@ class AggregateGrid extends React.Component {
                 </div>
             )
         }
+        // construct last row for final hour
+        elements.push(
+            <div className={"meeting-row"} key={this.MAX_ROWS} style={{
+            }}>
+                <div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + this.MAX_ROWS}
+                    style={{
+                        textAlign: 'right',
+                        fontSize: '10px',
+                        paddingRight: '4px',
+                    }}
+                >
+                    {`${START_TIME[0] + this.MAX_ROWS / 4}:00`}
+                </div>
+                <div className='meeting-time-cell'
+                    style={{
+                        width: `${45 * this.MAX_COLS + 1}px`,
+                    }}
+                >
+
+                </div>
+            </div>
+        )
+        elements.push(<br />)
         return elements;
     }
 
+    constructAvailability = () => {
+        if (this.state.row < 0) return <p></p>;
+        // console.log("calling with params ", this.state.row, this.state.column)
+        const other_guest_status = this.props.getAttendeesAtTime(this.state.row, this.state.column);
+        const elt = (<div style={{ display: 'block', margin: "auto", gap: "20px" }}>
+            <div style={{ display: 'inline-block', verticalAlign: "top", margin: "5px", padding: "3px" }}>
+                <h4 style={{ margin: "0px" }}>Available:</h4>
+                {other_guest_status.avail.map((x, i) => (<div key={i}><span style={{ fontSize: "0.83em" }}>{x}</span></div>))}
+            </div>
+            <div style={{ display: 'inline-block', verticalAlign: "top", margin: "5px", padding: "3px" }}>
+                <h4 style={{ margin: "0px" }}>Not Available:</h4>
+                {other_guest_status.unavail.map((x, i) => (<div key={i}><span style={{ fontSize: "0.83em" }}>{x}</span></div>))}
+            </div>
+        </div>);
+        return elt;
+        // console.log(this.props.getAttendeesAtTime(this.state.row, this.state.column).avail)
+        // return <p>{this.props.getAttendeesAtTime(this.state.row, this.state.column).avail}</p>
+    }
+
+    constructDateHeaders = () => {
+        let elt_row = [];
+        elt_row.push(<div className='meeting-time-cell' key={this.MAX_ROWS}
+            style={{
+                textAlign: 'right',
+                fontSize: '10px',
+                paddingRight: '4px',
+            }}
+        ></div>)
+        for (let i = 0; i < this.MAX_COLS; i++) {
+            elt_row.push(
+                <div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + i}
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '10px',
+                        // paddingRight: '4px',
+                        // border: '1px black solid'
+                        height: 'auto',
+                        width: '45px', // cell width + border size for alignment
+                    }}
+                >
+                    {`${this.props.dates[i][1]} ${this.props.dates[i][2]}`}
+                    <br />
+                    <span style={{ fontSize: '16px' }}>
+                        {this.props.dates[i][0]}
+                    </span>
+                </div>
+            )
+        }
+        return elt_row;
+    }
     render() {
         return (<div className={"AttendeeHalfPanel"}
         >
             {
-                // <GridHeader numAttendees={this.props.numAttendees} totalAttendees={this.props.totalAttendees} />
                 <GridHeader getNumAttendees={() => { return this.props.getAttendeeCounts().num_attendees }}
                     getTotalAttendees={() => { return this.props.getAttendeeCounts().total_attendees }} />
             }
-            {this.constructTimeCells()}
-            <p>{this.state.totalAttendees}</p>
+            <div className="body-grid">
+
+                <div>
+                    {this.constructDateHeaders()}
+                </div>
+                <div onMouseLeave={() => { this.updateCurrentMousePos(-1, -1) }}>
+                    {this.constructTimeCells()}
+                </div>
+            </div>
+            {/* <p>{this.state.totalAttendees}</p> */}
+            {this.constructAvailability()}
         </div>)
     }
 }

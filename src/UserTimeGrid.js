@@ -9,15 +9,15 @@ import { GRID_NO_SELECTION, GRID_CELL_UNSELECTED, GRID_CELL_SELECTED, START_TIME
  * @returns div containing grid header
  */
 function GridHeader(props) {
-    const [username, setUsername] = useState(props.username);
-    useEffect(() => {
-        setUsername(props.username);
-    }, [props.username]);
+    // const [username, setUsername] = useState(props.username);
+    // useEffect(() => {
+    //     setUsername(props.username);
+    // }, [props.username]);
 
     return (
         <div className='GridHeader'>
             <div>
-                {username}'s Availability
+                {props.username}'s Availability
             </div>
             <div style={{ display: 'inline-block', overflow: 'auto', fontSize: '12px', }}>
                 <div>
@@ -52,9 +52,11 @@ class TimetableGrid extends React.Component { // contains TimeCells
     constructor(props) {
         // pass in state from parent as part of props
         super(props);
+        console.log(props);
         this.noLaterThan = props.noLaterThan;
         this.MAX_ROWS = props.maxRows;
         this.MAX_COLS = props.maxCols;
+        this.username = props.username;
         this.state = {
             selectionMode: GRID_NO_SELECTION,
             row: 0,
@@ -142,7 +144,7 @@ class TimetableGrid extends React.Component { // contains TimeCells
                 }
             }
         }
-        // console.log("Candidate new grid:", new_grid);
+        console.log("Candidate new grid:", new_grid);
         this.props.updGridValue(new_grid);
         // console.log("Updating end:", printGrid());
 
@@ -213,7 +215,62 @@ class TimetableGrid extends React.Component { // contains TimeCells
                 </div>
             )
         }
+        // construct last row for final hour
+        elements.push(
+            <div className={"meeting-row"} key={this.MAX_ROWS} style={{
+            }}>
+                <div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + this.MAX_ROWS}
+                    style={{
+                        textAlign: 'right',
+                        fontSize: '10px',
+                        paddingRight: '4px',
+                    }}
+                >
+                    {`${START_TIME[0] + this.MAX_ROWS / 4}:00`}
+                </div>
+                <div className='meeting-time-cell'
+                    style={{
+                        width: `${45 * this.MAX_COLS + 1}px`,
+                    }}
+                >
+
+                </div>
+            </div>
+        )
+        elements.push(<br />)
         return elements;
+    }
+
+    constructDateHeaders = () => {
+        let elt_row = [];
+        elt_row.push(<div className='meeting-time-cell' key={this.MAX_ROWS}
+            style={{
+                textAlign: 'right',
+                fontSize: '10px',
+                paddingRight: '4px',
+            }}
+        ></div>)
+        for (let i = 0; i < this.MAX_COLS; i++) {
+            elt_row.push(
+                <div className='meeting-time-cell' key={this.MAX_ROWS * this.MAX_COLS + i}
+                    style={{
+                        textAlign: 'center',
+                        fontSize: '10px',
+                        // paddingRight: '4px',
+                        // border: '1px black solid'
+                        height: 'auto',
+                        width: '45px', // cell width + border size for alignment
+                    }}
+                >
+                    {`${this.props.dates[i][1]} ${this.props.dates[i][2]}`}
+                    <br />
+                    <span style={{ fontSize: '16px' }}>
+                        {this.props.dates[i][0]}
+                    </span>
+                </div>
+            )
+        }
+        return elt_row;
     }
 
     render() {
@@ -221,10 +278,16 @@ class TimetableGrid extends React.Component { // contains TimeCells
             onMouseUp={this.updateRange}
             onMouseLeave={this.updateRange}
         >
-            <GridHeader username="Tester" />
-            {
-                this.constructTimeCells()
-            }
+            <GridHeader username={this.username} />
+            <div className="body-grid">
+
+                <div>
+                    {this.constructDateHeaders()}
+                </div>
+                {
+                    this.constructTimeCells()
+                }
+            </div>
             {/* <p>{this.state.selectionMode}</p>
             <p>Row: {this.state.row}, Col: {this.state.column}</p>
             <p>Last selection: ({this.state.start_row}, {this.state.start_col}) to ({this.state.row}, {this.state.column})</p> */}
