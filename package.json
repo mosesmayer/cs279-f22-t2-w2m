@@ -1,7 +1,7 @@
 {
   "name": "tier2-w2m-app",
   "version": "0.1.0",
-  "homepage": "https://mosesmayer.github.io/cs279-f22-t2-w2m"
+  "homepage": "https://mosesmayer.github.io/cs279-f22-t2-w2m",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
