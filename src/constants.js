@@ -7,8 +7,8 @@ const GRID_CELL_SELECTED = 1; // rgb(51, 153, 0)
 // for fmting purposes, ensure minute is 0. Original W2M only allows by the hour
 const START_TIME = [9, 0]; // starting [hour, minute] -> ensure minute is 0
 const END_TIME = [17, 0];  // ending [hour, minute]   -> ensure minute is 0
-const START_DATE = [2022, 11, 7] // starting [yyyy, mm, dd]
-const END_DATE = [2022, 11, 12] // ending [yyyy, mm, dd]
+const START_DATE = [2022, 12, 12] // starting [yyyy, mm, dd]
+const END_DATE = [2022, 12, 16] // ending [yyyy, mm, dd]
 
 
 const DATES = [];
